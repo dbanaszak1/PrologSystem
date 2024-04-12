@@ -2,7 +2,7 @@
 showPokemonType(Pokemon) :-
     pokemontype(Pokemon, Type),
     write(Type).
-
+/*Orzel zmiana*/
 /* Define the predicate for checking effectiveness */
 effectiveAgainst(Pokemon, TargetType) :-
     pokemontype(Pokemon, Type),
