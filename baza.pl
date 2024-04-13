@@ -1,4 +1,4 @@
-/* Predykat wypisujący typ danego Pokemona */
+             /* Predykat wypisujący typ danego Pokemona */
 showPokemonType(Pokemon) :-
     pokemontype(Pokemon, Type),
     write(Type).
@@ -173,7 +173,7 @@ pokemontype(venusaur, poison).
 pokemontype(charmander, fire).
 pokemontype(charmeleon, fire).
 pokemontype(charizard, fire).
-pokemontype(charizard, flying). 
+pokemontype(charizard, flying).
 pokemontype(squirtle, water).
 pokemontype(wartortle, water).
 pokemontype(blastoise, water).
@@ -378,3 +378,41 @@ pokemontype(dragonite, dragon).
 pokemontype(dragonite, flying).
 pokemontype(mewtwo, psyhic).
 pokemontype(mew, psyhic).
+
+
+
+test:-
+    write('   Witaj w pokedeksie, w czym mogę pomóc?'), nl,
+    write('1. Pomoc strategiczna w dobraniu drużyny'), nl,
+    write('2. Ogólne informacje o typach'), nl,
+    read(A1), nl,
+    (  A1 == '1' ->
+        write('Co chciałbyś wiedzieć?'), nl,
+        write('1. Jaki jest typ mojego pokemona?'), nl,
+        write('2. Na jakie typy muszę uważać podczas bitwy?'), nl,
+        write('3. Pokemony jakiego typu najlepiej będą współgrać z moim kompanem?'), nl,
+        read(A2), nl,
+        (A2 == '1' ->
+            write('Wpisz nazwę swojego pokemona: '), nl,
+            read(Pokemon), nl,
+            pokemontype(Pokemon, Type),
+            format('Typ pokemona ~w to ~w', [Pokemon, Type]), nl
+        ;
+         A2 == '2' ->
+                    write('Jakiego typu jest twój pokemon?: '), nl,
+                    read(Typ), nl,
+                    findall(Kontra, (efdamage(Typ, Kontra, Y), Y =:= 0.8), KontraList),
+                    format('Typ pokemona ~w jest kontrowany przez typy: ~w', [Typ, KontraList]), nl
+        ; A2 == '3' ->
+            % dodać
+            true
+        ; write('Niepoprawny wybór, spróbuj ponownie.')
+        )
+    ; A1 == '2' ->
+        % dodać logike
+        true
+    ; write('Niepoprawny wybór, spróbuj ponownie.')
+    ).
+
+:- initialization(test).
+
