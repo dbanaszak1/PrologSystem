@@ -7,16 +7,16 @@ showPokemonType(Pokemon) :-
 /* Define the predicate for checking effectiveness */
 effectiveAgainst(Pokemon, TargetType) :-
     pokemontype(Pokemon, Type),
-    (pokemontype(Pokemon, SecondType),efdamage(TargetType, Type,  FirstModifier), efdamage(TargetType, SecondType, SecondModifier),
+    (pokemontype(Pokemon, SecondType), efdamage(TargetType, Type,  FirstModifier), efdamage(TargetType, SecondType, SecondModifier),
     Modifier is FirstModifier * SecondModifier;
     efdamage(Type, TargetType, Modifier)),
     Modifier > 1.
 
 /* Rule to suggest Pokemon based on effectiveness */
 suggestPokemon(Pokemon) :-
-    pokemontype(Pokemon, _),
+    pokemontype(Pokemon, _, _),
     effectiveAgainst(Pokemon, TargetType),
-    findall(TargetPokemon, (pokemontype(TargetPokemon, TargetType), TargetPokemon \= Pokemon), Suggestions),
+    findall(TargetPokemon, (pokemontype(TargetPokemon, TargetType, _), TargetPokemon \= Pokemon), Suggestions),
     write('Effective Pokemon against '), write(Pokemon), write(' are: '), nl,
     write(Suggestions), nl.
 
@@ -166,216 +166,156 @@ efdamage(water, water, 0.8).
 efdamage(water, grass, 0.8).
 efdamage(water, dragon, 0.8).
 
+
 /* 1ST GEN POKEMONS */
-pokemontype(bulbasaur, grass).
-pokemontype(ivysaur, grass).
-pokemontype(venusaur, grass).
-pokemontype(venusaur, poison).
-pokemontype(charmander, fire).
-pokemontype(charmeleon, fire).
-pokemontype(charizard, fire).
-pokemontype(charizard, flying).
-pokemontype(squirtle, water).
-pokemontype(wartortle, water).
-pokemontype(blastoise, water).
-pokemontype(caterpie, bug).
-pokemontype(metapod, bug).
-pokemontype(butterfree, bug).
-pokemontype(butterfree, flying).
-pokemontype(weedle, bug).
-pokemontype(weedle, poison).
-pokemontype(kakuna, bug).
-pokemontype(kakuna, poison).
-pokemontype(beedrill, bug).
-pokemontype(beedrill, poison).
-pokemontype(beedrill, flying).
-pokemontype(pidgey, normal).
-pokemontype(pidgey, flying).
-pokemontype(pidgeotto, normal).
-pokemontype(pidgeotto, flying).
-pokemontype(pidgeot, normal).
-pokemontype(pidgeot, flying).
-pokemontype(rattata, normal).
-pokemontype(raticate, normal).
-pokemontype(spearow, normal).
-pokemontype(spearow, flying).
-pokemontype(fearow, normal).
-pokemontype(fearow, flying).
-pokemontype(ekans, poison).
-pokemontype(arbok, poison).
-pokemontype(pikachu, electric).
-pokemontype(raichu, electric).
-pokemontype(sandshrew, ground).
-pokemontype(sandslash, ground).
-pokemontype(nidoran, poison).
-pokemontype(nidorina, poison).
-pokemontype(nidoqueen, poison).
-pokemontype(nidoqueen, ground).
-pokemontype(nidoran, poison).
-pokemontype(nidorino, poison).
-pokemontype(nidoking, poison).
-pokemontype(nidoking, ground).
-pokemontype(clefairy, normal).
-pokemontype(clefable, normal).
-pokemontype(vulpix, fire).
-pokemontype(ninetales, fire).
-pokemontype(jigglypuff, normal).
-pokemontype(wigglytuff, normal).
-pokemontype(zubat, poison).
-pokemontype(zubat, flying).
-pokemontype(golbat, poison).
-pokemontype(golbat, flying).
-pokemontype(oddish, grass).
-pokemontype(oddish, poison).
-pokemontype(gloom, grass).
-pokemontype(gloom, poison).
-pokemontype(vileplume, grass).
-pokemontype(vileplume, poison).
-pokemontype(paras, bug).
-pokemontype(paras, grass).
-pokemontype(parasect, bug).
-pokemontype(parasect, grass).
-pokemontype(venonat, bug).
-pokemontype(venonat, poison).
-pokemontype(venomoth, bug).
-pokemontype(venomoth, poison).
-pokemontype(venomoth, flying).
-pokemontype(diglett, ground).
-pokemontype(dugtrio, ground).
-pokemontype(meowth, normal).
-pokemontype(persian, normal).
-pokemontype(psyduck, water).
-pokemontype(golduck, water).
-pokemontype(mankey, fighting).
-pokemontype(primeape, fighting).
-pokemontype(growlithe, fire).
-pokemontype(arcanine, fire).
-pokemontype(poliwag, water).
-pokemontype(poliwhirl, water).
-pokemontype(poliwrath, water).
-pokemontype(poliwrath, fighting).
-pokemontype(abra, psyhic).
-pokemontype(kadabra, psyhic).
-pokemontype(alakazam, psyhic).
-pokemontype(machop, fighting).
-pokemontype(machoke, fighting).
-pokemontype(machamp, fighting).
-pokemontype(bellsprout, grass).
-pokemontype(bellsprout, poison).
-pokemontype(weepinbell, grass).
-pokemontype(weepinbell, poison).
-pokemontype(victreebel, grass).
-pokemontype(victreebel, poison).
-pokemontype(tentacool, water).
-pokemontype(tentacool, poison).
-pokemontype(tentacruel, water).
-pokemontype(tentacruel, poison).
-pokemontype(geodude, rock).
-pokemontype(geodude, ground).
-pokemontype(graveler, rock).
-pokemontype(graveler, ground).
-pokemontype(golem, rock).
-pokemontype(golem, ground).
-pokemontype(ponyta, fire).
-pokemontype(rapidash, fire).
-pokemontype(slowpoke, water).
-pokemontype(slowpoke, psyhic).
-pokemontype(slowbro, water).
-pokemontype(slowbro, psyhic).
-pokemontype(magnemite, electric).
-pokemontype(magneton, electric).
-pokemontype(farfetchd, normal).
-pokemontype(farfetchd, flying).
-pokemontype(doduo, normal).
-pokemontype(doduo, flying).
-pokemontype(dodrio, normal).
-pokemontype(dodrio, flying).
-pokemontype(seel, water).
-pokemontype(dewgong, water).
-pokemontype(dewgong, ice).
-pokemontype(grimer, poison).
-pokemontype(muk, poison).
-pokemontype(shellder, water).
-pokemontype(cloyster, water).
-pokemontype(cloyster, ice).
-pokemontype(gastly, ghost).
-pokemontype(haunter, ghost).
-pokemontype(gengar, ghost).
-pokemontype(gengar, poison).
-pokemontype(onix, rock).
-pokemontype(onix, ground).
-pokemontype(drowzee, psyhic).
-pokemontype(hypno, psyhic).
-pokemontype(krabby, water).
-pokemontype(kingler, water).
-pokemontype(voltorb, electric).
-pokemontype(electrode, electric).
-pokemontype(exeggcute, grass).
-pokemontype(exeggcute, psyhic).
-pokemontype(exeggutor, grass).
-pokemontype(exeggutor, psyhic).
-pokemontype(cubone, ground).
-pokemontype(marowak, ground).
-pokemontype(hitmonlee, fighting).
-pokemontype(hitmonchan, fighting).
-pokemontype(lickitung, normal).
-pokemontype(koffing, poison).
-pokemontype(weezing, poison).
-pokemontype(rhyhorn, ground).
-pokemontype(rhyhorn, rock).
-pokemontype(rhydon, ground).
-pokemontype(rhydon, rock).
-pokemontype(chansey, normal).
-pokemontype(tangela, grass).
-pokemontype(kangaskhan, normal).
-pokemontype(horsea, water).
-pokemontype(seadra, water).
-pokemontype(goldeen, water).
-pokemontype(seaking, water).
-pokemontype(staryu, water).
-pokemontype(starmie, water).
-pokemontype(starmie, psyhic).
-pokemontype(mrmime, psyhic).
-pokemontype(mrmime, flying).
-pokemontype(scyther, bug).
-pokemontype(scyther, flying).
-pokemontype(jynx, ice).
-pokemontype(jynx, psyhic).
-pokemontype(electabuzz, electric).
-pokemontype(magmar, fire).
-pokemontype(pinsir, bug).
-pokemontype(tauros, normal).
-pokemontype(magikarp, water).
-pokemontype(gyarados, water).
-pokemontype(gyarados, flying).
-pokemontype(lapras, water).
-pokemontype(lapras, ice).
-pokemontype(ditto, normal).
-pokemontype(eevee, normal).
-pokemontype(vaporeon, water).
-pokemontype(jolteon, electric).
-pokemontype(flareon, fire).
-pokemontype(porygon, normal).
-pokemontype(omanyte, rock).
-pokemontype(omanyte, water).
-pokemontype(omastar, rock).
-pokemontype(omastar, water).
-pokemontype(kabuto, rock).
-pokemontype(kabuto, water).
-pokemontype(kabutops, rock).
-pokemontype(kabutops, water).
-pokemontype(aerodactyl, rock).
-pokemontype(aerodactyl, flying).
-pokemontype(snorlax, normal).
-pokemontype(articuno, ice).
-pokemontype(articuno, flying).
-pokemontype(zapdos, electric).
-pokemontype(zapdos, flying).
-pokemontype(moltres, fire).
-pokemontype(moltres, flying).
-pokemontype(dratini, dragon).
-pokemontype(dragonair, dragon).
-pokemontype(dragonite, dragon).
-pokemontype(dragonite, flying).
-pokemontype(mewtwo, psyhic).
-pokemontype(mew, psyhic).
+pokemontype(bulbasaur, [grass, poison]).
+pokemontype(ivysaur, [grass, poison]).
+pokemontype(venusaur, [grass, poison]).
+pokemontype(charmander, [fire]).
+pokemontype(charmeleon, [fire]).
+pokemontype(charizard, [fire, flying]).
+pokemontype(squirtle, [water]).
+pokemontype(wartortle, [water]).
+pokemontype(blastoise, [water]).
+pokemontype(caterpie, [bug]).
+pokemontype(metapod, [bug]).
+pokemontype(butterfree, [bug, flying]).
+pokemontype(weedle, [bug, poison]).
+pokemontype(kakuna, [bug, poison]).
+pokemontype(beedrill, [bug, poison]).
+pokemontype(pidgey, [normal, flying]).
+pokemontype(pidgeotto, [normal, flying]).
+pokemontype(pidgeot, [normal, flying]).
+pokemontype(rattata, [normal]).
+pokemontype(raticate, [normal]).
+pokemontype(spearow, [normal, flying]).
+pokemontype(fearow, [normal, flying]).
+pokemontype(ekans, [poison]).
+pokemontype(arbok, [poison]).
+pokemontype(pikachu, [electric]).
+pokemontype(raichu, [electric]).
+pokemontype(sandshrew, [ground]).
+pokemontype(sandslash, [ground]).
+pokemontype(nidoran, [poison]).
+pokemontype(nidorina, [poison]).
+pokemontype(nidoqueen, [poison, ground]).
+pokemontype(nidoran, [poison]).
+pokemontype(nidorino, [poison]).
+pokemontype(nidoking, [poison, ground]).
+pokemontype(clefairy, [normal]).
+pokemontype(clefable, [normal]).
+pokemontype(vulpix, [fire]).
+pokemontype(ninetales, [fire]).
+pokemontype(jigglypuff, [normal]).
+pokemontype(wigglytuff, [normal]).
+pokemontype(zubat, [poison, flying]).
+pokemontype(golbat, [poison, flying]).
+pokemontype(oddish, [grass, poison]).
+pokemontype(gloom, [grass, poison]).
+pokemontype(vileplume, [grass, poison]).
+pokemontype(paras, [bug, grass]).
+pokemontype(parasect, [bug, grass]).
+pokemontype(venonat, [bug, poison]).
+pokemontype(venomoth, [bug, poison]).
+pokemontype(diglett, [ground]).
+pokemontype(dugtrio, [ground]).
+pokemontype(meowth, [normal]).
+pokemontype(persian, [normal]).
+pokemontype(psyduck, [water]).
+pokemontype(golduck, [water]).
+pokemontype(mankey, [fighting]).
+pokemontype(primeape, [fighting]).
+pokemontype(growlithe, [fire]).
+pokemontype(arcanine, [fire]).
+pokemontype(poliwag, [water]).
+pokemontype(poliwhirl, [water]).
+pokemontype(poliwrath, [water, fighting]).
+pokemontype(abra, [psyhic]).
+pokemontype(kadabra, [psyhic]).
+pokemontype(alakazam, [psyhic]).
+pokemontype(machop, [fighting]).
+pokemontype(machoke, [fighting]).
+pokemontype(machamp, [fighting]).
+pokemontype(bellsprout, [grass, poison]).
+pokemontype(weepinbell, [grass, poison]).
+pokemontype(victreebel, [grass, poison]).
+pokemontype(tentacool, [water, poison]).
+pokemontype(tentacruel, [water, poison]).
+pokemontype(geodude, [rock, ground]).
+pokemontype(graveler, [rock, ground]).
+pokemontype(golem, [rock, ground]).
+pokemontype(ponyta, [fire]).
+pokemontype(rapidash, [fire]).
+pokemontype(slowpoke, [water, psyhic]).
+pokemontype(slowbro, [water, psyhic]).
+pokemontype(magnemite, [electric, steel]).
+pokemontype(magneton, [electric, steel]).
+pokemontype(farfetchd, [normal, flying]).
+pokemontype(doduo, [normal, flying]).
+pokemontype(dodrio, [normal, flying]).
+pokemontype(seel, [water]).
+pokemontype(dewgong, [water, ice]).
+pokemontype(grimer, [poison]).
+pokemontype(muk, [poison]).
+pokemontype(shellder, [water]).
+pokemontype(cloyster, [water, ice]).
+pokemontype(gastly, [ghost, poison]).
+pokemontype(haunter, [ghost, poison]).
+pokemontype(gengar, [ghost, poison]).
+pokemontype(onix, [rock, ground]).
+pokemontype(drowzee, [psyhic]).
+pokemontype(hypno, [psyhic]).
+pokemontype(krabby, [water]).
+pokemontype(kingler, [water]).
+pokemontype(voltorb, [electric]).
+pokemontype(electrode, [electric]).
+pokemontype(exeggcute, [grass, psyhic]).
+pokemontype(exeggutor, [grass, psyhic]).
+pokemontype(cubone, [ground]).
+pokemontype(marowak, [ground]).
+pokemontype(hitmonlee, [fighting]).
+pokemontype(hitmonchan, [fighting]).
+pokemontype(lickitung, [normal]).
+pokemontype(koffing, [poison]).
+pokemontype(weezing, [poison]).
+pokemontype(rhyhorn, [ground, rock]).
+pokemontype(rhydon, [ground, rock]).
+pokemontype(chansey, [normal]).
+pokemontype(tangela, [grass]).
+pokemontype(kangaskhan, [normal]).
+pokemontype(horsea, [water]).
+pokemontype(seadra, [water]).
+pokemontype(goldeen, [water]).
+pokemontype(seaking, [water]).
+pokemontype(staryu, [water]).
+pokemontype(starmie, [water, psyhic]).
+pokemontype(mrmime, [psyhic, fairy]).
+pokemontype(scyther, [bug, flying]).
+pokemontype(jynx, [ice, psyhic]).
+pokemontype(electabuzz, [electric]).
+pokemontype(magmar, [fire]).
+pokemontype(pinsir, [bug]).
+pokemontype(tauros, [normal]).
+pokemontype(magikarp, [water]).
+pokemontype(gyarados, [water, flying]).
+pokemontype(lapras, [water, ice]).
+pokemontype(ditto, [normal]).
+pokemontype(eevee, [normal]).
+pokemontype(vaporeon, [water]).
+pokemontype(jolteon, [electric]).
+pokemontype(flareon, [fire]).
+pokemontype(porygon, [normal]).
+pokemontype(omanyte, [rock, water]).
+pokemontype(omastar, [rock, water]).
+pokemontype(kabuto, [rock, water]).
+pokemontype(kabutops, [rock, water]).
+pokemontype(aerodactyl, [rock, flying]).
+pokemontype(snorlax, [normal]).
+pokemontype(articuno, [ice, flying]).
+pokemontype(zapdos, [electric, flying]).
+pokemontype(moltres, [fire, flying]).
+pokemontype(dratini, [dragon]).
+pokemontype(dragonair, [dragon]).
+pokemontype(dragonite, [dragon, flying]).
+pokemontype(mewtwo, [psyhic]).
+pokemontype(mew, [psyhic]).
