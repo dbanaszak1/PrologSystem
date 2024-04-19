@@ -45,6 +45,21 @@ suggestEffectivePokemon :-
     read(Pokemon),
     suggestPokemon(Pokemon).
 
+/* Rule to find types that covers pokemon's weaknesses */
+coversWeaknesses(Pokemon) :-
+    pokemontype(Pokemon, Type),
+    findall(Weakness, (efdamage(Weakness, Type, Modifier), Modifier > 1), Weaknesses),
+    write('Types that covers weaknesses of '), write(Pokemon), write(' are: '), nl,
+    write(Weaknesses),nl,
+    findPokemonOfType(Weaknesses).
+
+/* Rule to find pokemons of specified types */
+findPokemonOfType([Head|Tail]) :-
+    findall(Pokemon, pokemontype(Pokemon, Head), Pokemons),
+    write('Pokemons of type '), write(Head), write(' are: '), nl,
+    write(Pokemons), nl,
+    findPokemonOfType(Tail).
+
 
 /* TYPES */
 type(grass).
