@@ -1,24 +1,43 @@
 /* Predykat wypisujący typ danego Pokemona */
 showPokemonType(Pokemon) :-
-    pokemontype(Pokemon, Type),
-    write(Type).
-
+    pokemontype(Pokemon, Types),
+    (   member(Type, Types),
+        write(Type),
+        write(' ')
+    ;   true
+    ),
+    nl.
 
 /* Define the predicate for checking effectiveness */
 effectiveAgainst(Pokemon, TargetType) :-
-    pokemontype(Pokemon, Type),
-    (pokemontype(Pokemon, SecondType), efdamage(TargetType, Type,  FirstModifier), efdamage(TargetType, SecondType, SecondModifier),
-    Modifier is FirstModifier * SecondModifier;
-    efdamage(Type, TargetType, Modifier)),
-    Modifier > 1.
+    pokemontype(Pokemon, Types),
+    (   member(Type, Types),
+        (   pokemontype(Pokemon, SecondType),
+            efdamage(TargetType, Type, FirstModifier),
+            efdamage(TargetType, SecondType, SecondModifier),
+            Modifier is FirstModifier * SecondModifier
+        ;   efdamage(Type, TargetType, Modifier)
+        ),
+        Modifier > 1
+    ;   false
+    ).
 
 /* Rule to suggest Pokemon based on effectiveness */
 suggestPokemon(Pokemon) :-
-    pokemontype(Pokemon, _, _),
-    effectiveAgainst(Pokemon, TargetType),
-    findall(TargetPokemon, (pokemontype(TargetPokemon, TargetType, _), TargetPokemon \= Pokemon), Suggestions),
-    write('Effective Pokemon against '), write(Pokemon), write(' are: '), nl,
-    write(Suggestions), nl.
+    pokemontype(Pokemon, Types),
+    (   member(Type, Types),
+        effectiveAgainst(Pokemon, Type),
+        findall(TargetPokemon,
+                (   pokemontype(TargetPokemon, TargetTypes),
+                    member(TargetType, TargetTypes),
+                    TargetType \= Type
+                ),
+                Suggestions
+            ),
+        write('Effective Pokemon against '), write(Pokemon), write(' are: '), nl,
+        write(Suggestions), nl
+    ;   write('No effective Pokemon against '), write(Pokemon), nl
+    ).
 
 /* Predicate to handle user input and provide suggestions */
 suggestEffectivePokemon :-
