@@ -1,8 +1,9 @@
-             /* Predykat wypisujący typ danego Pokemona */
+/* Predykat wypisujący typ danego Pokemona */
 showPokemonType(Pokemon) :-
     pokemontype(Pokemon, Type),
     write(Type).
-/*Orzel zmiandsadasda*/
+
+
 /* Define the predicate for checking effectiveness */
 effectiveAgainst(Pokemon, TargetType) :-
     pokemontype(Pokemon, Type),
@@ -378,13 +379,38 @@ pokemontype(dragonite, dragon).
 pokemontype(dragonite, flying).
 pokemontype(mewtwo, psyhic).
 pokemontype(mew, psyhic).
+myteam().
+
+:- dynamic(myteam/1).
+initialize_myteam :-
+    retractall(myteam(_)), % Usunięcie ewentualnych poprzednich wartości
+    assert(myteam([])).    % Dodanie pustej listy jako wartość myteam
+
+add_pokemon_to_myteam(Pokemon) :-
+    retract(myteam(MyTeam)),   % Pobranie aktualnej listy
+    append(MyTeam, [Pokemon], UpdatedTeam),
+    assert(myteam(UpdatedTeam)).  % Zaktualizowanie faktu myteam
+    
+display_myteam :-
+    myteam(MyTeam),  % Pobranie aktualnej listy Pokemonów
+    write('Twoja drużyna Pokemonów: '), nl,
+    display_pokemon_list(MyTeam).  % Wyświetlenie listy Pokemonów
+
+% Predykat pomocniczy do wyświetlania listy Pokemonów
+display_pokemon_list([]).
+display_pokemon_list([Pokemon|Rest]) :-
+    write('- '), write(Pokemon), nl,
+    display_pokemon_list(Rest).       %rek listy
+
 
 
 
 test:-
+    initialize_myteam,
     write('   Witaj w pokedeksie, w czym mogę pomóc?'), nl,
     write('1. Pomoc strategiczna w dobraniu drużyny'), nl,
     write('2. Ogólne informacje o typach'), nl,
+    write('3. Dodaj swóją drużynę'), nl,
     read(A1), nl,
     (  A1 == '1' ->
         write('Co chciałbyś wiedzieć?'), nl,
@@ -411,8 +437,13 @@ test:-
     ; A1 == '2' ->
         % dodać logike
         true
-    ; write('Niepoprawny wybór, spróbuj ponownie.')
+    ;
+    A1 == '3' ->
+        write('Wpisz nazwę swojego pokemona/pokemonów: '), nl,
+        read(Pokemon), nl,
+        add_pokemon_to_myteam(Pokemon),
+        display_myteam
+    ;   write('Niepoprawny wybór, spróbuj ponownie.')
     ).
 
 :- initialization(test).
-
