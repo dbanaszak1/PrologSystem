@@ -1,50 +1,93 @@
-/* Predykat wypisujący typ danego Pokemona */
-showPokemonType(Pokemon) :-                                          %działa
-    pokemontype(Pokemon, Types),
-    (   member(Type, Types),
-        write(Type),
-        write(' ')
-    ;   true
-    ),
-    nl.
+/* Rule to find duplicated elements on the list*/
+removeCommon([], _, []).
+removeCommon([H|T], List2, [H|Result]) :-
+    \+ member(H, List2),
+    removeCommon(T, List2, Result).
+removeCommon([H|T], List2, Result) :-
+    member(H, List2),
+    select(H, List2, NewList2),
+    removeCommon(T, NewList2, Result).
+    
+/* Rule to find pokemons of specified types */
+findPokemonOfType([], []).
+findPokemonOfType([Type|Rest], Pokemons) :-
+    findall(Pokemon, (pokemontype(Pokemon, Types), member(Type, Types)), PokemonList),
+    findPokemonOfType(Rest, RestPokemons),
+    append(PokemonList, RestPokemons, Pokemons).
 
-/*pokeomn -> kontry w niego */
+/*pokemon -> kontry w niego */
 effectiveAgainst(Pokemon, Typy):-
-    pokemontype(Pokemon, Typ), % pobranie typów pokemona                                                             %działa
-    effectiveAgainstHelper(Typ, Typy). % wywołanie pomocniczej procedury z uwzględnieniem typów
+    pokemontype(Pokemon, Typ),                                                         
+    effectiveAgainstHelper(Typ, Typy).
 
-effectiveAgainstHelper([], _). % Warunek kończący rekursję - gdy brak typów do sprawdzenia
+effectiveAgainstHelper([], _).
 effectiveAgainstHelper([Typ|Rest], Typy):-
    findall(Kontra, (efdamage(Kontra, Typ, KontraValue), KontraValue > 1.0), KontraList),
-    write('Kontry dla '), write(Typ), write(': '), write(KontraList), nl, % wypisz kontry
-    effectiveAgainstHelper(Rest, Typy). % wywołaj rekurencję dla pozostałych typów
+    write('Kontry dla '), write(Typ), write(': '), write(KontraList), nl,
+    effectiveAgainstHelper(Rest, Typy).
 
 /* Rule to find types that cover a Pokemon's weaknesses */
-coversWeaknesses2(Pokemon) :-
-    effectiveAgainst(Pokemon, Types), % Pobierz typy Pokemona                                                              %moje poprawki kończyły się nieskończonymi pętlami
-    findall(Weakness, (member(Type, Types), efdamage(Weakness, Type, Modifier), Modifier > 1), Weaknesses),
-    write('Types that cover weaknesses of '), write(Pokemon), write(' are: '), nl,
-    write(Weaknesses), nl.
-
-findPokemonOfType([Type]) :-
-    findall(Pokemon, pokemontype(Pokemon, [Type]), Pokemons),              %działa
-    write('Pokemony typu '), write(Type), write(' to: '), nl,
+findTeamPokemon2(Pokemon) :-
+    pokemontype(Pokemon, Type),
+    findCounter(Type, Weaknesses),
+    write('Proponuje pokemony typu: '), write(Weaknesses), write(' na miejsce nr. 2 w duzynie:' ), nl,
+    findPokemonOfType(Weaknesses, Pokemons),
     write(Pokemons), nl.
-findPokemonOfType([Type|Tail]) :-
-    findall(Pokemon, pokemontype(Pokemon, [Type]), Pokemons),
-    write('Pokemony typu '), write(Type), write(' to: '), nl,
-    write(Pokemons), nl,
-    findPokemonOfType(Tail).
 
 /* Rule to suggest Pokemon based on effectiveness */
-suggestPokemon(Pokemon) :-                                           %nie wiem do czego to
-   findPokemonOfType(Pokemon, Types),
+suggestPokemon(Pokemon) :-                                           
+   findPokemonOfType(Types).
 
 /* Predicate to handle user input and provide suggestions */
 suggestEffectivePokemon :-
-    write('Enter the Pokemon you are facing: '),                %nie wiem do czego to
+    write('Enter the Pokemon you are facing: '),                
     read(Pokemon),
     suggestPokemon(Pokemon).
+
+/* Rule to find types that counter a given types */
+findCounter([Type], Result) :-
+    findall(Kontra, (efdamage(Kontra, Type, KontraValue), KontraValue > 1.0), KontraList),
+    list_to_set(KontraList, Result),
+    write('Efektywne kontry dla '), write(Type), write(' to: '), nl,
+    write(Result), nl.
+
+findCounter([Type1, Type2], NewResult) :-
+    findall(Kontra, (efdamage(Kontra, Type1, KontraValue), KontraValue > 1.0), KontraList1),
+    findall(Kontra, (efdamage(Kontra, Type2, KontraValue), KontraValue > 1.0), KontraList2),
+    append(KontraList1, KontraList2, KontraList),
+    removeNeutral(Type1, Type2, KontraList, FilteredKontraList),
+    list_to_set(FilteredKontraList, UniqueKontraList),
+    removeCommon(FilteredKontraList, UniqueKontraList, Result),
+    write('Efektywne kontry dla '), write(Type1), write(' i '), write(Type2), write(' to: '), nl,
+    write(UniqueKontraList), nl,
+    
+    (
+        (Result = [] -> write('Pokemon nie posiada kontr super efektywnych.'), append([normal], [], NewResult);
+        write('Super efektywne kontry dla '), write(Type1), write(' i '), write(Type2), write(' to: '), nl,
+         NewResult = Result, write(NewResult), nl)  
+    ).
+
+/* Rule to remove types that neutralize against any given types */
+removeNeutral(_, _, [], []).
+removeNeutral(Type1, Type2, [Kontra|Rest], FilteredKontraList) :-
+    (neutralAgainstAny(Kontra, Type1, Type2) ->
+        removeNeutral(Type1, Type2, Rest, FilteredKontraList)
+    ; 
+        FilteredKontraList = [Kontra|FilteredRest],
+        removeNeutral(Type1, Type2, Rest, FilteredRest)
+    ).
+
+/* Rule to check if the type is neutral against any of the given types */
+neutralAgainstAny(Type, Type1, Type2) :-
+    neutralAgainst(Type, Type1);
+    neutralAgainst(Type, Type2).
+
+/* Rule to check if the type is neutral against the given type */
+neutralAgainst(Type, Against) :-
+    efdamage(Against, Type, Modifier),
+    Modifier =:= 1.0.
+
+
 
 /* TYPES */
 type(grass).
