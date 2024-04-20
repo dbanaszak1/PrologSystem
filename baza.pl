@@ -1,5 +1,5 @@
 /* Predykat wypisujący typ danego Pokemona */
-showPokemonType(Pokemon) :-
+showPokemonType(Pokemon) :-                                          %działa
     pokemontype(Pokemon, Types),
     (   member(Type, Types),
         write(Type),
@@ -8,58 +8,43 @@ showPokemonType(Pokemon) :-
     ),
     nl.
 
-/* Define the predicate for checking effectiveness */
-effectiveAgainst(Pokemon, TargetType) :-
-    pokemontype(Pokemon, Types),
-    (   member(Type, Types),
-        (   pokemontype(Pokemon, SecondType),
-            efdamage(TargetType, Type, FirstModifier),
-            efdamage(TargetType, SecondType, SecondModifier),
-            Modifier is FirstModifier * SecondModifier
-        ;   efdamage(Type, TargetType, Modifier)
-        ),
-        Modifier > 1
-    ;   false
-    ).
+/*pokeomn -> kontry w niego */
+effectiveAgainst(Pokemon, Typy):-
+    pokemontype(Pokemon, Typ), % pobranie typów pokemona                                                             %działa
+    effectiveAgainstHelper(Typ, Typy). % wywołanie pomocniczej procedury z uwzględnieniem typów
 
-/* Rule to suggest Pokemon based on effectiveness */
-suggestPokemon(Pokemon) :-
-    pokemontype(Pokemon, Types),
-    (   member(Type, Types),
-        effectiveAgainst(Pokemon, Type),
-        findall(TargetPokemon,
-                (   pokemontype(TargetPokemon, TargetTypes),
-                    member(TargetType, TargetTypes),
-                    TargetType \= Type
-                ),
-                Suggestions
-            ),
-        write('Effective Pokemon against '), write(Pokemon), write(' are: '), nl,
-        write(Suggestions), nl
-    ;   write('No effective Pokemon against '), write(Pokemon), nl
-    ).
+effectiveAgainstHelper([], _). % Warunek kończący rekursję - gdy brak typów do sprawdzenia
+effectiveAgainstHelper([Typ|Rest], Typy):-
+   findall(Kontra, (efdamage(Kontra, Typ, KontraValue), KontraValue > 1.0), KontraList),
+    write('Kontry dla '), write(Typ), write(': '), write(KontraList), nl, % wypisz kontry
+    effectiveAgainstHelper(Rest, Typy). % wywołaj rekurencję dla pozostałych typów
 
-/* Predicate to handle user input and provide suggestions */
-suggestEffectivePokemon :-
-    write('Enter the Pokemon you are facing: '),
-    read(Pokemon),
-    suggestPokemon(Pokemon).
+/* Rule to find types that cover a Pokemon's weaknesses */
+coversWeaknesses2(Pokemon) :-
+    effectiveAgainst(Pokemon, Types), % Pobierz typy Pokemona                                                              %moje poprawki kończyły się nieskończonymi pętlami
+    findall(Weakness, (member(Type, Types), efdamage(Weakness, Type, Modifier), Modifier > 1), Weaknesses),
+    write('Types that cover weaknesses of '), write(Pokemon), write(' are: '), nl,
+    write(Weaknesses), nl.
 
-/* Rule to find types that covers pokemon's weaknesses */
-coversWeaknesses(Pokemon) :-
-    pokemontype(Pokemon, Type),
-    findall(Weakness, (efdamage(Weakness, Type, Modifier), Modifier > 1), Weaknesses),
-    write('Types that covers weaknesses of '), write(Pokemon), write(' are: '), nl,
-    write(Weaknesses),nl,
-    findPokemonOfType(Weaknesses).
-
-/* Rule to find pokemons of specified types */
-findPokemonOfType([Head|Tail]) :-
-    findall(Pokemon, pokemontype(Pokemon, Head), Pokemons),
-    write('Pokemons of type '), write(Head), write(' are: '), nl,
+findPokemonOfType([Type]) :-
+    findall(Pokemon, pokemontype(Pokemon, [Type]), Pokemons),              %działa
+    write('Pokemony typu '), write(Type), write(' to: '), nl,
+    write(Pokemons), nl.
+findPokemonOfType([Type|Tail]) :-
+    findall(Pokemon, pokemontype(Pokemon, [Type]), Pokemons),
+    write('Pokemony typu '), write(Type), write(' to: '), nl,
     write(Pokemons), nl,
     findPokemonOfType(Tail).
 
+/* Rule to suggest Pokemon based on effectiveness */
+suggestPokemon(Pokemon) :-                                           %nie wiem do czego to
+   findPokemonOfType(Pokemon, Types),
+
+/* Predicate to handle user input and provide suggestions */
+suggestEffectivePokemon :-
+    write('Enter the Pokemon you are facing: '),                %nie wiem do czego to
+    read(Pokemon),
+    suggestPokemon(Pokemon).
 
 /* TYPES */
 type(grass).
