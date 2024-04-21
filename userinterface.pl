@@ -33,7 +33,7 @@ test :-
                   format('Pokemony typu ~w to ~w', [Typ, Pokemon])
             ;
             A2 == '3' ->
-                write('Jaki na jaki typ pokemonów walczysz?'), nl,
+                write('Jaki na jaki typ pokemonów na które walczysz?'), nl,
                 read(Typ), nl,
                 findCounter([Typ], _)
         )
