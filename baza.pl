@@ -26,18 +26,6 @@ effectiveAgainstHelper([Typ|Rest], Typy):-
     write('Kontry dla '), write(Typ), write(': '), write(KontraList), nl,
     effectiveAgainstHelper(Rest, Typy).
 
-/* Rule to find types that cover a Pokemon's weaknesses */
-findTeamPokemon2(Pokemon) :-
-    pokemontype(Pokemon, Type),
-    findCounter(Type, Weaknesses),
-    write('Proponuje pokemony typu: '), write(Weaknesses), write(' na miejsce nr. 2 w duzynie:' ), nl,
-    findPokemonOfType(Weaknesses, Pokemons),
-    write(Pokemons), nl.
-
-/* Rule to suggest Pokemon based on effectiveness */
-suggestPokemon(Pokemon) :-                                           
-   findPokemonOfType(Types).
-
 /* Predicate to handle user input and provide suggestions */
 suggestEffectivePokemon :-
     write('Enter the Pokemon you are facing: '),                
@@ -46,34 +34,34 @@ suggestEffectivePokemon :-
 
 /* Rule to find types that counter a given types */
 findCounter([Type], Result) :-
-    findall(Kontra, (efdamage(Kontra, Type, KontraValue), KontraValue > 1.0), KontraList),
-    list_to_set(KontraList, Result),
+    findall(Counter, (efdamage(Counter, Type, CounterValue), CounterValue > 1.0), CounterList),
+    list_to_set(CounterList, Result),
     write('Efektywne kontry dla '), write(Type), write(' to: '), nl,
     write(Result), nl.
 
 findCounter([Type1, Type2], NewResult) :-
-    findall(Kontra, (efdamage(Kontra, Type1, KontraValue), KontraValue > 1.0), KontraList1),
-    findall(Kontra, (efdamage(Kontra, Type2, KontraValue), KontraValue > 1.0), KontraList2),
-    append(KontraList1, KontraList2, KontraList),
-    removeNeutral(Type1, Type2, KontraList, FilteredKontraList),
-    list_to_set(FilteredKontraList, UniqueKontraList),
-    removeCommon(FilteredKontraList, UniqueKontraList, Result),
+    findall(Counter, (efdamage(Counter, Type1, CounterValue), CounterValue > 1.0), CounterList1),
+    findall(Counter, (efdamage(Counter, Type2, CounterValue), CounterValue > 1.0), CounterList2),
+    append(CounterList1, CounterList2, CounterList),
+    removeNeutral(Type1, Type2, CounterList, FilteredCounterList),
+    list_to_set(FilteredCounterList, UniqueCounterList),
+    removeCommon(FilteredCounterList, UniqueCounterList, Result),
     write('Efektywne kontry dla '), write(Type1), write(' i '), write(Type2), write(' to: '), nl,
-    write(UniqueKontraList), nl,
+    write(UniqueCounterList), nl,
     
     (
-        (Result = [] -> write('Pokemon nie posiada kontr super efektywnych.'), append([normal], [], NewResult);
+        (Result = [] -> write(' Pokemon nie posiada kontr super efektywnych.'), append([normal], [], NewResult);
         write('Super efektywne kontry dla '), write(Type1), write(' i '), write(Type2), write(' to: '), nl,
          NewResult = Result, write(NewResult), nl)  
     ).
 
 /* Rule to remove types that neutralize against any given types */
 removeNeutral(_, _, [], []).
-removeNeutral(Type1, Type2, [Kontra|Rest], FilteredKontraList) :-
-    (neutralAgainstAny(Kontra, Type1, Type2) ->
-        removeNeutral(Type1, Type2, Rest, FilteredKontraList)
+removeNeutral(Type1, Type2, [Counter|Rest], FilteredCounterList) :-
+    (neutralAgainstAny(Counter, Type1, Type2) ->
+        removeNeutral(Type1, Type2, Rest, FilteredCounterList)
     ; 
-        FilteredKontraList = [Kontra|FilteredRest],
+        FilteredCounterList = [Counter|FilteredRest],
         removeNeutral(Type1, Type2, Rest, FilteredRest)
     ).
 
@@ -86,6 +74,30 @@ neutralAgainstAny(Type, Type1, Type2) :-
 neutralAgainst(Type, Against) :-
     efdamage(Against, Type, Modifier),
     Modifier =:= 1.0.
+
+/* Rule to suggest pokemon 2 to team */
+findTeamPokemon2(Pokemon) :-
+    pokemontype(Pokemon, Type),
+    findCounter(Type, Weaknesses),
+    write('Proponuje pokemony typu: '), write(Weaknesses), write(' na miejsce nr. 2 w duzynie:' ), nl,
+    findPokemonOfType(Weaknesses, Pokemons),
+    write(Pokemons), nl.
+
+/* Rule to suggest pokemon nr 3 to team */
+findTeamPokemon3([Pokemon1, Pokemon2], Pokemons) :-
+    pokemontype(Pokemon1, [Type1, _]),
+    pokemontype(Pokemon2, [Type2, _]),
+    (
+        Type2 = normal ->
+            findall(GhostPokemon, (pokemontype(GhostPokemon, [ghost, _])), GhostPokemonList),
+            write('Ze wzgledu na wczesniej wybranego pokemona typu normal proponuje pokemony typu ghost na miejsce nr 3 w druzynie: '), nl,
+            Pokemons = GhostPokemonList
+        ;
+            findCounter([Type1, Type2], Weaknesses),
+            write('Proponuje pokemony typu: '), write(Weaknesses), write(' na miejsce nr. 3 w druzynie:' ), nl,
+            findPokemonOfType(Weaknesses, Pokemons)
+    ),
+    write(Pokemons), nl.
 
 
 
@@ -230,17 +242,18 @@ efdamage(water, dragon, 0.8).
 
 
 /* 1ST GEN POKEMONS */
+/* 1ST GEN POKEMONS */
 pokemontype(bulbasaur, [grass, poison]).
 pokemontype(ivysaur, [grass, poison]).
 pokemontype(venusaur, [grass, poison]).
-pokemontype(charmander, [fire]).
-pokemontype(charmeleon, [fire]).
+pokemontype(charmander, [fire, fire]).
+pokemontype(charmeleon, [fire, fire]).
 pokemontype(charizard, [fire, flying]).
-pokemontype(squirtle, [water]).
-pokemontype(wartortle, [water]).
-pokemontype(blastoise, [water]).
-pokemontype(caterpie, [bug]).
-pokemontype(metapod, [bug]).
+pokemontype(squirtle, [water, water]).
+pokemontype(wartortle, [water, water]).
+pokemontype(blastoise, [water, water]).
+pokemontype(caterpie, [bug, bug]).
+pokemontype(metapod, [bug, bug]).
 pokemontype(butterfree, [bug, flying]).
 pokemontype(weedle, [bug, poison]).
 pokemontype(kakuna, [bug, poison]).
@@ -248,28 +261,28 @@ pokemontype(beedrill, [bug, poison]).
 pokemontype(pidgey, [normal, flying]).
 pokemontype(pidgeotto, [normal, flying]).
 pokemontype(pidgeot, [normal, flying]).
-pokemontype(rattata, [normal]).
-pokemontype(raticate, [normal]).
+pokemontype(rattata, [normal, normal]).
+pokemontype(raticate, [normal, normal]).
 pokemontype(spearow, [normal, flying]).
 pokemontype(fearow, [normal, flying]).
-pokemontype(ekans, [poison]).
-pokemontype(arbok, [poison]).
-pokemontype(pikachu, [electric]).
-pokemontype(raichu, [electric]).
-pokemontype(sandshrew, [ground]).
-pokemontype(sandslash, [ground]).
-pokemontype(nidoran, [poison]).
-pokemontype(nidorina, [poison]).
+pokemontype(ekans, [poison, poison]).
+pokemontype(arbok, [poison, poison]).
+pokemontype(pikachu, [electric, electric]).
+pokemontype(raichu, [electric, electric]).
+pokemontype(sandshrew, [ground, ground]).
+pokemontype(sandslash, [ground, ground]).
+pokemontype(nidoran, [poison, poison]).
+pokemontype(nidorina, [poison, poison]).
 pokemontype(nidoqueen, [poison, ground]).
-pokemontype(nidoran, [poison]).
-pokemontype(nidorino, [poison]).
+pokemontype(nidoran, [poison, poison]).
+pokemontype(nidorino, [poison, poison]).
 pokemontype(nidoking, [poison, ground]).
-pokemontype(clefairy, [normal]).
-pokemontype(clefable, [normal]).
-pokemontype(vulpix, [fire]).
-pokemontype(ninetales, [fire]).
-pokemontype(jigglypuff, [normal]).
-pokemontype(wigglytuff, [normal]).
+pokemontype(clefairy, [normal, normal]).
+pokemontype(clefable, [normal, normal]).
+pokemontype(vulpix, [fire, fire]).
+pokemontype(ninetales, [fire, fire]).
+pokemontype(jigglypuff, [normal, normal]).
+pokemontype(wigglytuff, [normal, normal]).
 pokemontype(zubat, [poison, flying]).
 pokemontype(golbat, [poison, flying]).
 pokemontype(oddish, [grass, poison]).
@@ -279,25 +292,25 @@ pokemontype(paras, [bug, grass]).
 pokemontype(parasect, [bug, grass]).
 pokemontype(venonat, [bug, poison]).
 pokemontype(venomoth, [bug, poison]).
-pokemontype(diglett, [ground]).
-pokemontype(dugtrio, [ground]).
-pokemontype(meowth, [normal]).
-pokemontype(persian, [normal]).
-pokemontype(psyduck, [water]).
-pokemontype(golduck, [water]).
-pokemontype(mankey, [fighting]).
-pokemontype(primeape, [fighting]).
-pokemontype(growlithe, [fire]).
-pokemontype(arcanine, [fire]).
-pokemontype(poliwag, [water]).
-pokemontype(poliwhirl, [water]).
+pokemontype(diglett, [ground, ground]).
+pokemontype(dugtrio, [ground, ground]).
+pokemontype(meowth, [normal, normal]).
+pokemontype(persian, [normal, normal]).
+pokemontype(psyduck, [water, water]).
+pokemontype(golduck, [water, water]).
+pokemontype(mankey, [fighting, fighting]).
+pokemontype(primeape, [fighting, fighting]).
+pokemontype(growlithe, [fire, fire]).
+pokemontype(arcanine, [fire, fire]).
+pokemontype(poliwag, [water, water]).
+pokemontype(poliwhirl, [water, water]).
 pokemontype(poliwrath, [water, fighting]).
-pokemontype(abra, [psyhic]).
-pokemontype(kadabra, [psyhic]).
-pokemontype(alakazam, [psyhic]).
-pokemontype(machop, [fighting]).
-pokemontype(machoke, [fighting]).
-pokemontype(machamp, [fighting]).
+pokemontype(abra, [psyhic, psyhic]).
+pokemontype(kadabra, [psyhic, psyhic]).
+pokemontype(alakazam, [psyhic, psyhic]).
+pokemontype(machop, [fighting, fighting]).
+pokemontype(machoke, [fighting, fighting]).
+pokemontype(machamp, [fighting, fighting]).
 pokemontype(bellsprout, [grass, poison]).
 pokemontype(weepinbell, [grass, poison]).
 pokemontype(victreebel, [grass, poison]).
@@ -306,78 +319,78 @@ pokemontype(tentacruel, [water, poison]).
 pokemontype(geodude, [rock, ground]).
 pokemontype(graveler, [rock, ground]).
 pokemontype(golem, [rock, ground]).
-pokemontype(ponyta, [fire]).
-pokemontype(rapidash, [fire]).
+pokemontype(ponyta, [fire, fire]).
+pokemontype(rapidash, [fire, fire]).
 pokemontype(slowpoke, [water, psyhic]).
 pokemontype(slowbro, [water, psyhic]).
-pokemontype(magnemite, [electric, steel]).
-pokemontype(magneton, [electric, steel]).
+pokemontype(magnemite, [electric, electric]).
+pokemontype(magneton, [electric, electric]).
 pokemontype(farfetchd, [normal, flying]).
 pokemontype(doduo, [normal, flying]).
 pokemontype(dodrio, [normal, flying]).
-pokemontype(seel, [water]).
+pokemontype(seel, [water, water]).
 pokemontype(dewgong, [water, ice]).
-pokemontype(grimer, [poison]).
-pokemontype(muk, [poison]).
-pokemontype(shellder, [water]).
+pokemontype(grimer, [poison, poison]).
+pokemontype(muk, [poison, poison]).
+pokemontype(shellder, [water, water]).
 pokemontype(cloyster, [water, ice]).
 pokemontype(gastly, [ghost, poison]).
 pokemontype(haunter, [ghost, poison]).
 pokemontype(gengar, [ghost, poison]).
 pokemontype(onix, [rock, ground]).
-pokemontype(drowzee, [psyhic]).
-pokemontype(hypno, [psyhic]).
-pokemontype(krabby, [water]).
-pokemontype(kingler, [water]).
-pokemontype(voltorb, [electric]).
-pokemontype(electrode, [electric]).
+pokemontype(drowzee, [psyhic, psyhic]).
+pokemontype(hypno, [psyhic, psyhic]).
+pokemontype(krabby, [water, water]).
+pokemontype(kingler, [water, water]).
+pokemontype(voltorb, [electric, electric]).
+pokemontype(electrode, [electric, electric]).
 pokemontype(exeggcute, [grass, psyhic]).
 pokemontype(exeggutor, [grass, psyhic]).
-pokemontype(cubone, [ground]).
-pokemontype(marowak, [ground]).
-pokemontype(hitmonlee, [fighting]).
-pokemontype(hitmonchan, [fighting]).
-pokemontype(lickitung, [normal]).
-pokemontype(koffing, [poison]).
-pokemontype(weezing, [poison]).
+pokemontype(cubone, [ground, ground]).
+pokemontype(marowak, [ground, ground]).
+pokemontype(hitmonlee, [fighting, fighting]).
+pokemontype(hitmonchan, [fighting, fighting]).
+pokemontype(lickitung, [normal, normal]).
+pokemontype(koffing, [poison, poison]).
+pokemontype(weezing, [poison, poison]).
 pokemontype(rhyhorn, [ground, rock]).
 pokemontype(rhydon, [ground, rock]).
-pokemontype(chansey, [normal]).
-pokemontype(tangela, [grass]).
-pokemontype(kangaskhan, [normal]).
-pokemontype(horsea, [water]).
-pokemontype(seadra, [water]).
-pokemontype(goldeen, [water]).
-pokemontype(seaking, [water]).
-pokemontype(staryu, [water]).
+pokemontype(chansey, [normal, normal]).
+pokemontype(tangela, [grass, grass]).
+pokemontype(kangaskhan, [normal, normal]).
+pokemontype(horsea, [water, water]).
+pokemontype(seadra, [water, water]).
+pokemontype(goldeen, [water, water]).
+pokemontype(seaking, [water, water]).
+pokemontype(staryu, [water, water]).
 pokemontype(starmie, [water, psyhic]).
 pokemontype(mrmime, [psyhic, fairy]).
 pokemontype(scyther, [bug, flying]).
 pokemontype(jynx, [ice, psyhic]).
-pokemontype(electabuzz, [electric]).
-pokemontype(magmar, [fire]).
-pokemontype(pinsir, [bug]).
-pokemontype(tauros, [normal]).
-pokemontype(magikarp, [water]).
+pokemontype(electabuzz, [electric, electric]).
+pokemontype(magmar, [fire, fire]).
+pokemontype(pinsir, [bug, bug]).
+pokemontype(tauros, [normal, normal]).
+pokemontype(magikarp, [water, water]).
 pokemontype(gyarados, [water, flying]).
 pokemontype(lapras, [water, ice]).
-pokemontype(ditto, [normal]).
-pokemontype(eevee, [normal]).
-pokemontype(vaporeon, [water]).
-pokemontype(jolteon, [electric]).
-pokemontype(flareon, [fire]).
-pokemontype(porygon, [normal]).
+pokemontype(ditto, [normal, normal]).
+pokemontype(eevee, [normal, normal]).
+pokemontype(vaporeon, [water, water]).
+pokemontype(jolteon, [electric, electric]).
+pokemontype(flareon, [fire, fire]).
+pokemontype(porygon, [normal, normal]).
 pokemontype(omanyte, [rock, water]).
 pokemontype(omastar, [rock, water]).
 pokemontype(kabuto, [rock, water]).
 pokemontype(kabutops, [rock, water]).
 pokemontype(aerodactyl, [rock, flying]).
-pokemontype(snorlax, [normal]).
+pokemontype(snorlax, [normal, normal]).
 pokemontype(articuno, [ice, flying]).
 pokemontype(zapdos, [electric, flying]).
 pokemontype(moltres, [fire, flying]).
-pokemontype(dratini, [dragon]).
-pokemontype(dragonair, [dragon]).
+pokemontype(dratini, [dragon, dragon]).
+pokemontype(dragonair, [dragon, dragon]).
 pokemontype(dragonite, [dragon, flying]).
-pokemontype(mewtwo, [psyhic]).
-pokemontype(mew, [psyhic]).
+pokemontype(mewtwo, [psyhic, psyhic]).
+pokemontype(mew, [psyhic, psyhic]).
