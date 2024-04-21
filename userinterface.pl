@@ -18,6 +18,7 @@ test :-
         write('Co chciałbyś wiedzieć?'), nl,
         write('1. Jaki jest typ mojego pokemona?'), nl,
         write('2. Jakie pokemony należą do tego typu?'), nl,
+        write('3. Jaki typ pokemona wybrać przeciwko innemu typowi pokemonów?'), nl,
         read(A2), nl,
         (   A2 == '1' ->
                 write('Wpisz nazwę swojego pokemona: '), nl,
@@ -28,13 +29,19 @@ test :-
             A2 == '2' ->
                 write('Pokemony którego/których typów chcesz poznać?'), nl,
                 read(Typ), nl,
-                findPokemonOfType([Typ], X)
+                findPokemonOfType([Typ], Pokemon),
+                  format('Pokemony typu ~w to ~w', [Typ, Pokemon])
+            ;
+            A2 == '3' ->
+                write('Jaki na jaki typ pokemonów walczysz?'), nl,
+                read(Typ), nl,
+                findCounter([Typ], _)
         )
     ;
     A1 == '2' ->
-           write('Wpisz typ/typy pokemona, którego chcesz skontrować: '), nl,
+           write('Wpisz pokemona którego kontrujemy '), nl,
            read(Pokemon), nl,
-           findCounter([Pokemon], _)
+           effectiveAgainst(Pokemon, _)
     ;
     A1 == '3' ->
          write('Witaj w kreatorze drużyn'), nl,
