@@ -26,11 +26,7 @@ effectiveAgainstHelper([Typ|Rest], Typy):-
     write('Kontry dla '), write(Typ), write(': '), write(KontraList), nl,
     effectiveAgainstHelper(Rest, Typy).
 
-/* Predicate to handle user input and provide suggestions */
-suggestEffectivePokemon :-
-    write('Enter the Pokemon you are facing: '),                
-    read(Pokemon),
-    suggestPokemon(Pokemon).
+
 
 /* Rule to find types that counter a given types */
 findCounter([Type], Result) :-

@@ -1,68 +1,55 @@
-myteam().
+:- consult('baza.pl').
 
-:- dynamic(myteam/1).
-initialize_myteam :-
-    retractall(myteam(_)), % Usunięcie ewentualnych poprzednich wartości
-    assert(myteam([])).    % Dodanie pustej listy jako wartość myteam
+init_myteam([]).
 
-add_pokemon_to_myteam(Pokemon) :-
-    retract(myteam(MyTeam)),   % Pobranie aktualnej listy
-    append(MyTeam, [Pokemon], UpdatedTeam),
-    assert(myteam(UpdatedTeam)).  % Zaktualizowanie faktu myteam
-    
-display_myteam :-
-    myteam(MyTeam),  % Pobranie aktualnej listy Pokemonów
-    write('Twoja drużyna Pokemonów: '), nl,
-    display_pokemon_list(MyTeam).  % Wyświetlenie listy Pokemonów
+add_pokemon_to_myteam(Pokemon, Team, NewTeam) :-
+    append(Team, [Pokemon], NewTeam).
 
-% Predykat pomocniczy do wyświetlania listy Pokemonów
-display_pokemon_list([]).
-display_pokemon_list([Pokemon|Rest]) :-
-    write('- '), write(Pokemon), nl,
-    display_pokemon_list(Rest).       %rek listy
+display_myteam(Team) :-
+    write('Twoja drużyna to: '), write(Team), nl.
 
+test :-
+    write('1. Podstawowe informacje'), nl,
+    write('2. Kontra dla danego pokemona'), nl,
+    write('3. Stwórz swoją drużynę'), nl,
 
-
-
-test:-
-    initialize_myteam,
-    write('   Witaj w pokedeksie, w czym mogę pomóc?'), nl,
-    write('1. Pomoc strategiczna w dobraniu drużyny'), nl,
-    write('2. Ogólne informacje o typach'), nl,
-    write('3. Dodaj swóją drużynę'), nl,
     read(A1), nl,
-    (  A1 == '1' ->
+    (   A1 == '1' ->
         write('Co chciałbyś wiedzieć?'), nl,
         write('1. Jaki jest typ mojego pokemona?'), nl,
-        write('2. Na jakie typy muszę uważać podczas bitwy?'), nl,
-        write('3. Pokemony jakiego typu najlepiej będą współgrać z moim kompanem?'), nl,
+        write('2. Jakie pokemony należą do tego typu?'), nl,
         read(A2), nl,
-        (A2 == '1' ->
-            write('Wpisz nazwę swojego pokemona: '), nl,
-            read(Pokemon), nl,
-            pokemontype(Pokemon, Type),
-            format('Typ pokemona ~w to ~w', [Pokemon, Type]), nl
-        ;
-         A2 == '2' ->
-                    write('Jakiego typu jest twój pokemon?: '), nl,
-                    read(Typ), nl,
-                    findall(Kontra, (efdamage(Typ, Kontra, Y), Y =:= 0.8), KontraList),
-                    format('Typ pokemona ~w jest kontrowany przez typy: ~w', [Typ, KontraList]), nl
-        ; A2 == '3' ->
-            % dodać
-            true
-        ; write('Niepoprawny wybór, spróbuj ponownie.')
+        (   A2 == '1' ->
+                write('Wpisz nazwę swojego pokemona: '), nl,
+                read(Pokemon), nl,
+                pokemontype(Pokemon, Type),
+                format('Typ pokemona ~w to ~w', [Pokemon, Type]), nl
+            ;
+            A2 == '2' ->
+                write('Pokemony którego/których typów chcesz poznać?'), nl,
+                read(Typ), nl,
+                findPokemonOfType([Typ], X)
         )
-    ; A1 == '2' ->
-        % dodać logike
-        true
+    ;
+    A1 == '2' ->
+           write('Wpisz typ/typy pokemona, którego chcesz skontrować: '), nl,
+           read(Pokemon), nl,
+           findCounter([Pokemon], _)
     ;
     A1 == '3' ->
-        write('Wpisz nazwę swojego pokemona/pokemonów: '), nl,
-        read(Pokemon), nl,
-        add_pokemon_to_myteam(Pokemon),
-        display_myteam
-    ;   write('Niepoprawny wybór, spróbuj ponownie.')
+         write('Witaj w kreatorze drużyn'), nl,
+         write('Prosze podaj swojego głównego pokemona: '), nl,
+         read(Pokemon), nl,
+         add_pokemon_to_myteam(Pokemon, [], Team1),
+         findTeamPokemon2(Pokemon),
+         write('Prosze podaj swojego drugiego pokemona: '), nl,
+         read(Pokemon2), nl,
+         add_pokemon_to_myteam(Pokemon2, Team1, Team2),
+         findTeamPokemon3([Pokemon,Pokemon2], _),
+         write('Prosze podaj swojego trzeciego pokemona: '), nl,
+         read(Pokemon3), nl,
+         add_pokemon_to_myteam(Pokemon3, Team2, FinalTeam),
+         display_myteam(FinalTeam)
     ).
 
 :- initialization(test).
